@@ -9,7 +9,7 @@ export const development={
   connection:{
     port: 5432,
     host: 'localhost',
-    database: 'oc.io',
+    database: 'pruebaImagen',
     user : 'postgres',
     password: 'root',
   }

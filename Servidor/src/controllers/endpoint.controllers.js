@@ -4,6 +4,7 @@ import Evento from "../../models/Evento.model.js";
 import Usuario from "../../models/Usuario.model.js";
 import Transaccion from "../../models/Transacciones.model.js";
 import axios from 'axios';
+import multer from 'multer';
 
 //Conexión a la base de datos
 const dbConnection = Knex(development);
@@ -306,3 +307,48 @@ export const borrarUsuario = async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 };
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) =>{
+        cb(null, "./public/images");
+    },
+    filename: (req, file, cb) =>{
+        const ext = file.originalname.split('.').pop(); //toma la extensión de la imagen
+        cb(null, `${Date.now()}.${ext}`);
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    // Verifica si el archivo es una imagen
+    if (file.mimetype.startsWith('image/')) {
+        cb(null, true); // Acepta el archivo
+    } else {
+        cb(new Error('El archivo no es una imagen válida.'), false); // Rechaza el archivo
+    }
+};
+
+const upload = multer({
+    storage,
+    fileFilter, // Agrega la función de filtro de archivos
+});
+
+export const subidaImagen = (req, res, next) => {
+    upload.single('file')(req, res, (err) => {
+      try {
+        if (err instanceof multer.MulterError) {
+          // Error de Multer (por ejemplo, tamaño de archivo excedido)
+          return res.status(400).json({ error: err.message });
+        } else if (err) {
+          // Otro tipo de error
+          return res.status(500).json({ error: err.message });
+        }
+  
+        const dbquery = Usuario.query();
+        //lo optimo seria recibir por parametro el id de usuario logueado y a partir de ahi introducir la referencia a la imagen en la BDD
+        // Si no hay errores, continúa con la siguiente función de middleware o ruta
+        next();
+      } catch (error) {
+        return res.status(500).json({ error: error.message });
+      }
+    });
+  };

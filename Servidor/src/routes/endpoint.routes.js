@@ -1,5 +1,5 @@
 import passport from 'passport'
-import { login, register, crearEventos, listarEventos, empresasNoValidadas, pagar, usuario, logout, entradas , empresasValidadas ,validarEmpresa,actualizarPerfil, actualizarEvento,borrarEvento, borrarUsuario} from '../controllers/endpoint.controllers.js';
+import { login, register, crearEventos, listarEventos, empresasNoValidadas, pagar, usuario, logout, entradas , empresasValidadas ,validarEmpresa,actualizarPerfil, actualizarEvento,borrarEvento, borrarUsuario, subidaImagen} from '../controllers/endpoint.controllers.js';
 import { Router } from 'express';
 import { strategyInit } from '../../lib/AuthStrategy.js';
 
@@ -51,3 +51,13 @@ router.delete('/eventos/:id', borrarEvento);
 
 // Endpoint: GET /logout finaliza la sesion existente
 router.get("/logout", logout);
+
+//subida imagen
+router.post('/upload', subidaImagen, (req, res) => {
+    try {
+      const filename = req.file.filename;
+      res.send({ data: 'imagen cargada', nombre: filename });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+});
